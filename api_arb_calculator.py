@@ -1,4 +1,5 @@
 import requests
+from config import API_KEY
 
 
 def arb_calc(home_odds, away_odds, total_wager):
@@ -48,9 +49,8 @@ def find_arbitrage_opportunities(game_data):
 
 # An api key is emailed to you when you sign up to a plan
 # Get a free API key at https://api.the-odds-api.com/
-API_KEY = '962ccd9bb90fbd5aacf0dfb232570710'
 
-SPORT = 'americanfootball_ncaaf' # use the sport_key from the /sports endpoint below, or use 'upcoming' to see the next 8 games across all sports
+SPORT = 'upcoming' # use the sport_key from the /sports endpoint below, or use 'upcoming' to see the next 8 games across all sports
 
 REGIONS = 'us' # uk | us | eu | au. Multiple can be specified if comma delimited
 
