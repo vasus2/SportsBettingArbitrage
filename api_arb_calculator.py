@@ -24,8 +24,8 @@ def find_arbitrage_opportunities(game_data):
     max_home_bookie = max(bookmaker_home_price, key = lambda key: bookmaker_home_price[key])
     max_home = int(bookmaker_home_price[max_home_bookie])
     max_away = int(bookmaker_away_price[max_away_bookie])
-    print(max_home_bookie, max_home)
-    print(max_away_bookie, max_away)
+    print(game_data['home_team'], max_home_bookie, max_home)
+    print(game_data['away_team'], max_away_bookie, max_away)
 
     home_odds = 0
     away_odds = 0
@@ -40,6 +40,9 @@ def find_arbitrage_opportunities(game_data):
     if home_odds + away_odds < 100:
         home_wager, away_wager = arb_calc(home_odds, away_odds, 100)
         print(home_wager, away_wager)
+    else: print("no arbitrage opportunities")
+
+    print("_______________________________________________")
 
 
 
@@ -47,7 +50,7 @@ def find_arbitrage_opportunities(game_data):
 # Get a free API key at https://api.the-odds-api.com/
 API_KEY = '962ccd9bb90fbd5aacf0dfb232570710'
 
-SPORT = 'upcoming' # use the sport_key from the /sports endpoint below, or use 'upcoming' to see the next 8 games across all sports
+SPORT = 'americanfootball_ncaaf' # use the sport_key from the /sports endpoint below, or use 'upcoming' to see the next 8 games across all sports
 
 REGIONS = 'us' # uk | us | eu | au. Multiple can be specified if comma delimited
 
