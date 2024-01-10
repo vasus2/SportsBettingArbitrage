@@ -14,7 +14,11 @@ def calculate_arbitrage(odds, total_wager):
     # Calculate the total implied probability
     sum_implied = sum(implied_odds)
 
-    profit = (total_wager/(sum_implied/100)) - total_wager
+    if sum_implied == 0:
+        # Handle the case where the sum of implied odds is zero
+        return implied_odds, [], 0
+
+    profit = (total_wager / (sum_implied / 100)) - total_wager
 
     # Calculate the stake for each outcome
     stakes = [total_wager * x / sum_implied for x in implied_odds]
@@ -26,16 +30,33 @@ def display_results(odds, implied_odds, stakes, total_profit):
     print("Implied Probabilities:", implied_odds)
     print("Stake for each outcome:", stakes)
     print("Total Profit:", total_profit)
+    if total_profit > 0:
+        print("There is an Arbitrage Opportunity")
 
 def find_arbitrage_opportunities(game_data):
+    
+    if len(game_data) == 0:
+        print( "there is no game data")
+        return
+
     list_outcomes = []
     name_outcomes = []
     best_bookies = []
     odds = []
 
     for bookmaker in game_data['bookmakers']:
+        if len(bookmaker) == 0:
+            return "there are no bookmakers"
+        
         for market in bookmaker['markets']:
+            if len(market) == 0:
+                return "there are no markets"
+            
             outcomes = market['outcomes']
+
+            if len(outcomes) == 0:
+                return "there are no outcomes"
+            
             name_outcomes = [outcome['name'] for outcome in outcomes]
             break
 
@@ -92,6 +113,7 @@ else:
     odds_json = odds_response.json()
     print('Number of events:', len(odds_json))
     for game in odds_json:
+        
         find_arbitrage_opportunities(game)
 
     # Check the usage quota
