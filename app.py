@@ -51,13 +51,14 @@ def fetch_odds():
             }
         )
         odds_response.raise_for_status()
+        api_uses_remaining = odds_response.headers.get('x-requests-remaining', 'Unknown')
         logger.debug(f"Received {len(odds_response.json())} games")
-        return odds_response.json()
+        return odds_response.json(), api_uses_remaining
     except requests.RequestException as e:
         logger.error(f"Error fetching odds: {e}")
-        return []
+        return [], 0
 
-@app.route('/api/arbitrage-opportunities', methods=['GET', 'OPTIONS'])
+@app.route('/api/opportunities', methods=['GET', 'OPTIONS'])
 def get_arbitrage_opportunities():
     # Handle CORS preflight request
     if request.method == 'OPTIONS':
@@ -68,7 +69,7 @@ def get_arbitrage_opportunities():
         return response, 200
 
     try:
-        odds_data = fetch_odds()
+        odds_data, api_uses_remaining = fetch_odds()
         opportunities = []
 
         for game in odds_data:
@@ -109,8 +110,7 @@ def get_arbitrage_opportunities():
                     opportunity = {
                         'sport': game_data['sport_title'],
                         'event': f"{game_data['home_team']} vs {game_data['away_team']}",
-                        'bookmaker1': best_bookies[0],
-                        'bookmaker2': best_bookies[1] if len(best_bookies) > 1 else 'N/A',
+                        'bookmakers': best_bookies,
                         'profitPercentage': round(profit, 2),
                         'outcomes': name_outcomes,
                         'odds': odds,
@@ -123,13 +123,16 @@ def get_arbitrage_opportunities():
                 logger.error(f"Error processing game: {e}")
 
         logger.debug(f"Returning {len(opportunities)} arbitrage opportunities")
-        response = jsonify(opportunities)
+        response = jsonify({
+            'opportunities': opportunities,
+            'api_uses_remaining': api_uses_remaining
+        })
         response.headers.add('Access-Control-Allow-Origin', '*')
         return response
 
     except Exception as e:
         logger.error(f"Unexpected error: {e}")
-        response = jsonify({"error": str(e)})
+        response = jsonify({"error": str(e), 'api_uses_remaining': 0})
         response.headers.add('Access-Control-Allow-Origin', '*')
         return response, 500
 
